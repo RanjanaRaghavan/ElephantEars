@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Mesh Demo</title>
+    <title>Elephant Ears Face Filter</title>
+    <style>
+        #earImages { display: none; }
+    </style>
 </head>
 <body>
     <video id="video" width="640" height="480" autoplay></video>
     <canvas id="output" width="640" height="480"></canvas>
     
+    <div id="earImages">
+        <img id="leftEar" src="images/left_ear.png" alt="Left Ear">
+        <img id="rightEar" src="images/right_ear.png" alt="Right Ear">
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
