@@ -8,6 +8,8 @@ const rightEarImage = document.getElementById('rightEar');
 
 // Flag to check if images are loaded
 let imagesLoaded = false;
+let flapAngle = 0;
+const flapSpeed = 0.1; // Adjust for faster or slower flapping
 
 // Function to check if both images are loaded
 function checkImagesLoaded() {
@@ -23,9 +25,40 @@ rightEarImage.addEventListener('load', checkImagesLoaded);
 // Also check immediately in case images are already cached
 checkImagesLoaded();
 
-function onResults(results) {
-  if (!imagesLoaded) return; // Don't proceed if images aren't loaded
+const elephantSound = new Audio('./images/elephant_sounds.mp3');
+const mouthOpenThreshold = 0.1; // Adjust this value as needed
+let canPlaySound = true;
 
+// document.addEventListener('click', () => {
+//   canPlaySound = true;
+//   // Try to play the sound once to "unlock" audio
+//   elephantSound.play().then(() => {
+//     elephantSound.pause();
+//     elephantSound.currentTime = 0;
+//   }).catch(error => console.log('Error unlocking audio:', error));
+// });
+
+function onResults(results) {
+  if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    const landmarks = results.multiFaceLandmarks[0];
+    
+    // MediaPipe Face Mesh indices for upper and lower lip
+    const upperLipIndex = 13;
+    const lowerLipIndex = 14;
+    
+    const upperLipY = landmarks[upperLipIndex].y;
+    const lowerLipY = landmarks[lowerLipIndex].y;
+    
+    const mouthOpenness = lowerLipY - upperLipY;
+    
+    console.log('Mouth openness:', mouthOpenness); // For debugging
+    console.log('canPlaySound:' , canPlaySound); // For debugging
+
+    if (mouthOpenness > mouthOpenThreshold && canPlaySound) {
+      elephantSound.play().catch(error => console.log('Error playing sound:', error));
+    }
+  }
+  
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
@@ -44,22 +77,39 @@ function onResults(results) {
       const eyeLevel = (leftEye.y + rightEye.y) / 2;
       const faceHeight = Math.abs(topHead.y - eyeLevel) * canvasElement.height * 2;
 
-      // Calculate ear size (adjust multiplier for desired size)
-      const earSize = faceHeight * 0.8;
+      // Increase ear size
+      const earSize = faceHeight * 1.2; // Increased from 0.8 to 1.2
 
       // Calculate ear positions
-      const leftEarX = leftEar.x * canvasElement.width - earSize * 0.3;
-      const rightEarX = rightEar.x * canvasElement.width - earSize * 0.7;
-      const earY = topHead.y * canvasElement.height - earSize * 0.1;
+      const leftEarX = leftEar.x * canvasElement.width - earSize * 0.4;
+      const rightEarX = rightEar.x * canvasElement.width - earSize * 0.6;
+      const earY = topHead.y * canvasElement.height - earSize * 0.3; // Moved up slightly
 
       // Set composition mode to respect transparency
       canvasCtx.globalCompositeOperation = 'source-over';
 
-      // Draw ears
-      canvasCtx.drawImage(leftEarImage, leftEarX, earY, earSize, earSize);
-      canvasCtx.drawImage(rightEarImage, rightEarX, earY, earSize, earSize);
+      // Calculate flap offset for side-to-side movement
+      const flapOffset = Math.sin(flapAngle) * 20; // Adjust 20 for more or less flap
+
+      // Draw flapping ears
+      drawFlappingEar(leftEarImage, leftEarX - flapOffset, earY, earSize, -flapOffset);
+      drawFlappingEar(rightEarImage, rightEarX + flapOffset, earY, earSize, flapOffset);
     }
   }
+  canvasCtx.restore();
+
+  // Update flap angle
+  flapAngle += flapSpeed;
+}
+
+function drawFlappingEar(image, x, y, size, flapOffset) {
+  canvasCtx.save();
+  canvasCtx.translate(x + size / 2, y + size / 2);
+  
+  // Apply skew transform for side-to-side movement
+  canvasCtx.transform(1, 0, Math.tan(flapOffset * Math.PI / 180) * 0.2, 1, 0, 0);
+  
+  canvasCtx.drawImage(image, -size / 2, -size / 2, size, size);
   canvasCtx.restore();
 }
 

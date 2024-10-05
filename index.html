@@ -6,16 +6,20 @@
     <title>Elephant Ears Face Filter</title>
     <style>
         #earImages { display: none; }
+        #video { display: none; }  /* Hide the video element */
+        #output { display: block; margin: 0 auto; }  /* Center the canvas */
     </style>
 </head>
 <body>
-    <video id="video" width="640" height="480" autoplay></video>
     <canvas id="output" width="640" height="480"></canvas>
+    <video id="video" width="640" height="480" autoplay style="display: none;"></video>
     
-    <div id="earImages">
+    <div id="earImages" style="display: none;">
         <img id="leftEar" src="images/left_ear.png" alt="Left Ear">
         <img id="rightEar" src="images/right_ear.png" alt="Right Ear">
     </div>
+
+    <audio id="elephantSound" src="images/elephant_sounds.mp3" preload="auto"></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
